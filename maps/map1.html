@@ -15,6 +15,10 @@
     <link rel="stylesheet" href="plugins/north-arrow/L.Control.Rose.css" />
     <!-- Full Screen -->
     <link rel="stylesheet" href="plugins/full-screen/Control.FullScreen.css" />
+    <!-- Full Screen -->
+    <link rel="stylesheet" href="plugins/leaflet-search/leaflet-search.css" />
+    <!-- Load c3.css -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.css" rel="stylesheet">
     <style>
         body {
             padding: 0;
@@ -72,7 +76,7 @@
         }
         
         .titleDiv {
-            padding: 6px;
+            padding: 2px;
             background: rgba(255, 255, 255, 0.9);
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
             border-radius: 2px;
@@ -83,9 +87,14 @@
 <body>
     <!--Map-->
     <div id="mymap"></div>
+    <!--Chart-->
+    <div id="chart"></div>
     <!--Noth Arrow -->
     <div id="rose"></div>
     <!-- Java Scripts-->
+    <!-- Load d3.js and c3.js -->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.js"></script>
     <!-- Leaflet js-->
     <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
     <!-- Better Scale Js-->
@@ -94,6 +103,8 @@
     <script src="plugins/north-arrow/L.Control.Rose.js"></script>
     <!-- Full Screen -->
     <script src="plugins/full-screen/Control.FullScreen.js"></script>
+    <!-- Full Screen -->
+    <script src="plugins/leaflet-search/leaflet-search.js"></script>
     <!--Crime Rate Data -->
     <script type="text/javascript" src="data/crimes.js"></script>
     <!--Map Data -->
@@ -101,14 +112,18 @@
         function highlightFeature(e) {
             // Get access to the feature that was hovered through e.target
             var feature = e.target;
+            var layer = e.target;
+
+            makeChart(layer.feature.properties);
 
             // Set a thick grey border on the feature as mouseover effect
             // Adjust the values below to change the highlighting styles of features on mouseover
             // Check out https://leafletjs.com/reference-1.3.4.html#path for more options for changing style
             feature.setStyle({
-                weight: 10,
-                color: '#fff',
-                fillOpacity: 0.7
+                weight: 3,
+                color: '#00FFFF',
+                fillOpacity: 0.9,
+                dashArray: '0, 0',
             });
 
             // Bring the highlighted feature to front so that the border doesn’t clash with nearby states
@@ -116,6 +131,83 @@
             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                 feature.bringToFront();
             }
+        }
+
+        function makeChart(props) {
+            // props is just a variable, which will be replaced with the layer's properties 
+            // when using the function
+            c3.generate({
+
+                bindto: '#chart', // id of the chart div, as defined earlier
+
+                size: { // size (height and width) of the chart, by pixels
+                    height: 150,
+                    width: 200
+                },
+
+                padding: {
+                    top: 6,
+                    right: 4,
+                    bottom: 6,
+                },
+
+                title: {
+                    text: props.NAME_1 + "State" // Use the NAME attribute as chart title 
+                        // This is displayed above the chart
+                        // You may use other strings, HTML elements or combined
+                },
+
+                data: {
+                    // Define the actual data
+                    // I use the attribute values as data for making the charts
+                    // The strings are labels of the charts (shown in legend)
+                    x: 'x',
+                    columns: [
+                        ['x', '1999', '2009', '2019'],
+                        ['Age', Number(props.v1999), Number(props.v2009), Number(props.v2019)]
+                    ],
+
+
+                    type: 'spline', // chart type
+                },
+
+
+                color: {
+                    pattern: '#1f77b4'
+                },
+
+
+                legend: {
+                    show: false
+                },
+
+                axis: {
+                    x: {
+                        //label: { text :'Age Cohort', position: 'outer-center'},
+                        type: 'category',
+                        tick: {
+                            //padding: {left:0, right:0}
+                            //format: '%Y' // format string is also available for timeseries data
+                        }
+                    },
+                    y: {
+                        tick: {
+                            count: 5,
+                            format: function(d) {
+                                d = Math.round(d);
+                                return d
+                            }
+                        }
+                    }
+                },
+
+
+
+                color: { // colors of donut segments, same order as the data 
+                    pattern: ['green']
+                }
+
+            });
         }
 
         var geojson;
@@ -148,18 +240,19 @@
                 dashArray: '5, 10',
                 opacity: 0.7,
                 color: 'gray',
-                fillOpacity: 0.9
+                fillOpacity: 0.7
             };
         }
 
+        var tooltip = document.getElementById("chart");
         geojson = L.geoJson(crime_data, {
-                style: style,
-                onEachFeature: onEachFeature
-            }).bindPopup(function(layer) {
-                return layer.feature.properties.NAME_1 +
-                    '<p style="color:red">' + layer.feature.properties.v2019.toString() + ' Crimes per year</p>';
-            })
-            //
+            style: style,
+            onEachFeature: onEachFeature
+        }).bindPopup(function(layer) {
+            return layer.feature.properties.NAME_1 +
+                '<p style="color:red">' + layer.feature.properties.v2019.toString() + ' Crimes in 2019</p>';
+        }).bindTooltip(tooltip);
+        //
         var Jawg_Matrix = L.tileLayer('https://{s}.tile.jawg.io/jawg-matrix/{z}/{x}/{y}{r}.png?access-token={accessToken}', {
             attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             minZoom: 0,
@@ -226,7 +319,7 @@
         });
         titleDiv.onAdd = function(map) {
             var titleText = L.DomUtil.create('div', 'titleDiv');
-            titleText.innerHTML = '<h4>2019 Violent Crime In United States</h4>';
+            titleText.innerHTML = '<h4>2019 Violent Crime In United States <br/>Per 100,000 Citizens</h4>';
             return titleText;
         };
         titleDiv.addTo(map);
@@ -256,6 +349,20 @@
         });
         rose.addTo(map);
         //Title
+        var searchController = new L.Control.Search({
+            layer: geojson,
+            propertyName: 'NAME_1',
+            textPlaceholder: 'State..',
+            zoom: 7,
+            initial: false,
+            circleLocation: false
+        });
+        searchController.on('search:locationfound', function(event) {
+            console.log(event);
+            map.fitBounds(event.getBounds());
+            //alert(event.getBounds())
+        });
+        map.addControl(searchController);
     </script>
 </body>
 
