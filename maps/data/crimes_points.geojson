@@ -51,6 +51,7 @@
 { "type": "Feature", "properties": { "ID_1": 48, "NAME_1": "Washington", "1": 24410, "2": 21691, "3": 20394 }, "geometry": { "type": "Point", "coordinates": [ -120.439215124286733, 47.382520360549748 ] } },
 { "type": "Feature", "properties": { "ID_1": 49, "NAME_1": "West Virginia", "1": 3036, "2": 4968, "3": 6231 }, "geometry": { "type": "Point", "coordinates": [ -80.611716047810745, 38.643029613318625 ] } },
 { "type": "Feature", "properties": { "ID_1": 50, "NAME_1": "Wisconsin", "1": 12948, "2": 15421, "3": 17647 }, "geometry": { "type": "Point", "coordinates": [ -89.734840253749766, 44.640886167285274 ] } },
-{ "type": "Feature", "properties": { "ID_1": 51, "NAME_1": "Wyoming", "1": 1367, "2": 1236, "3": 1302 }, "geometry": { "type": "Point", "coordinates": [ -107.553199960218109, 43.000794806214174 ] } }
+{ "type": "Feature", "properties": { "ID_1": 51, "NAME_1": "Wyoming", "1": 1367, "2": 1236, "3": 1302 }, "geometry": { "type": "Point", "coordinates": [ -107.553199960218109, 43.000794806214174 ] } },
+{ "type": "Feature", "properties": { "ID_1": 52, "NAME_1": "Minnesota", "1": 13392, "2": 13717, "3": 13319 }, "geometry": { "type": "Point", "coordinates": [ -93.950663130416473, 46.273714052606884 ] } }
 ]
 }
